@@ -1,0 +1,48 @@
+#Artificial_Life_Lecture_SS25_Programming_Assignment_PA_E_List_of_46_Positions_of_European_Capitals_in_2D
+#Positions_are_according_to_map_http://upload.wikimedia.org/wikipedia/commons/6/64/Europe_capitals_map_de.png  
+ 1	 446	 621	#Amsterdam
+ 2	 328	 913	#Andorra_la_Vella
+ 3	1062	 966	#Ankara
+ 4	 857	1071	#Athens
+ 5	 755	 884	#Belgrade
+ 6	 606	 627	#Berlin
+ 7	 477	 798	#Bern
+ 8	 684	 764	#Bratislava
+ 9	 430	 671	#Brussels
+10 	 889	 857	#Bucharest 
+11	 720	 786	#Budapest
+12	 927	 780	#Chisinau
+13	 592	 535	#Copenhagen
+14	 249	 548	#Dublin
+15	 788	 383	#Helsinki
+16	 940	 667	#Kiew
+17	  51	 960	#Lisbon
+18	 627	 831	#Ljubljana
+19	 350	 636	#London
+20	 458	 707	#Luxembourg
+21	 179	 947	#Madrid
+22	 860	 571	#Minsk
+23	 456	 896	#Monaco
+24	1012	 473	#Moscow
+25	1115	1116	#Nicosia 
+26	 569	 400	#Oslo
+27	 378	 727	#Paris
+28	 732	 942	#Podgorica
+29	 618	 705	#Prague
+30	 146	 147	#Reykjavik
+31	 786	 487	#Riga
+32	 578	 960	#Rome
+33	 578	 900	#San_Marino
+34	 712	 897	#Sarajevo
+35	 788	 951	#Skopje
+36	 830	 921	#Sofia
+37	 686	 420	#Stockholm
+38	 794	 411	#Tallinn
+39	 752	 977	#Tirana
+40	 523	 792	#Vaduz
+41	 623	1150	#Valletta
+42	 578	 960	#Vatican_City
+43	 663	 768	#Vienna
+44	 820	 556	#Vilnius
+45	 745	 637	#Warsaw
+46	 657	 840	#Zagreb
