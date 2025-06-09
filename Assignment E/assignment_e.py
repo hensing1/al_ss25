@@ -1,4 +1,5 @@
 from pathlib import Path
+from random import randint
 from sys import argv
 from typing import NamedTuple
 
@@ -9,8 +10,7 @@ class City(NamedTuple):
     pos_y: int
 
 
-class Individuum(NamedTuple):
-    genome: list[int]  # list of indices of cities
+Genome = list[int]  # list of indices of cities
 
 
 def parse(file: Path) -> list[City]:
@@ -33,14 +33,14 @@ def distance(a: City, b: City) -> float:
     return (dx * dx + dy * dy) ** 0.5
 
 
-def fitness(genome: list[int], cities: list[City]) -> float:
+def fitness(genome: Genome, cities: list[City]) -> float:
     score = 0
     for i in range(len(genome) - 1):
         score += distance(cities[genome[i]], cities[genome[i+1]])
     return score
 
 
-def is_valid(genome: list[int], cities: list[City]) -> bool:
+def is_valid(genome: Genome, cities: list[City]) -> bool:
     if len(genome) != 2 * len(cities):
         return False
     
@@ -50,6 +50,23 @@ def is_valid(genome: list[int], cities: list[City]) -> bool:
         
     return True
 
+
+def recombination_simple_crossover(parent_1: Genome, parent_2: Genome) -> Genome:
+    crossover = randint(0, len(parent_1) - 1)
+
+    offspring = parent_1[:crossover]  # take everything up to crossover from parent 1
+    city_count = [0] * (len(parent_1) // 2)
+
+    for city in offspring:
+        city_count[city] += 1
+
+    for city in parent_2:  # for the rest: take remaining cities in the order they appear in parent 2
+        if city_count[city] == 2:
+            continue
+        offspring.append(city)
+        city_count[city] += 1
+
+    return offspring
 
 
 def main():
