@@ -88,14 +88,24 @@ def recombination_simple_crossover(parent_1: Genome, parent_2: Genome) -> Genome
     return offspring
 
 
-def mutate(genome: Genome) -> Genome:
-    return genome
+def swap(list: list, i: int, j: int):
+    temp = list[i]
+    list[i] = list[j]
+    list[j] = temp
+
+
+def mutate(genome: Genome):
+    num_swaps = randint(1, 10)
+    for _ in range(num_swaps):
+        i, j = sample(range(len(genome)), 2)
+        swap(genome, i, j)
 
 
 def make_child(parents: list[Genome]) -> Genome:
     parent_1, parent_2 = sample(parents, 2)
     child = recombination_simple_crossover(parent_1, parent_2)
-    return mutate(child)
+    mutate(child)
+    return child
 
 
 def offspring(parents: list[Genome], lmbda: int) -> list[Genome]:
@@ -161,19 +171,25 @@ def main():
     mu = input_or_default("Choose size of parent pool (mu, default 20): ", 20)
     if mu > p:
         raise ValueError("mu must be <= P")
-    num_iter = input_or_default("Choose number of iterations (default 100): ", 100)
+    # num_iter = input_or_default("Choose number of iterations (default 100): ", 100)
     
     population = init_population(p, len(cities))
     population.sort(key=fitness_func, reverse=True)
 
     print_performance(population, fitness_func, 0)
-    for i in range(num_iter):
-        population = ea_step(population, fitness_func, mu)
-        print_performance(population, fitness_func, i+1)
+    # for i in range(num_iter):
+    try:
+        i = 1
+        while True:
+            population = ea_step(population, fitness_func, mu)
+            print_performance(population, fitness_func, i)
+            i += 1
+    except KeyboardInterrupt:
+        ...
 
     best = population[0]
     viz_path(best, cities, Path(argv[2]))
-    print("Best path:")
+    print("\nBest path:")
     print_path(best, cities)
     print("Path is valid.") if is_valid(best, cities) else print("your god damn code is ass")
 
