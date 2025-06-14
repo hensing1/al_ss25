@@ -74,8 +74,8 @@ def recombination_simple_crossover(parent_1: Genome, parent_2: Genome) -> Genome
     crossover = randint(0, len(parent_1) - 1)
 
     offspring = parent_1[:crossover]  # take everything up to crossover from parent 1
-    city_count = [0] * (len(parent_1) // 2)
 
+    city_count = [0] * (len(parent_1) // 2)
     for city in offspring:
         city_count[city] += 1
 
@@ -88,6 +88,66 @@ def recombination_simple_crossover(parent_1: Genome, parent_2: Genome) -> Genome
     return offspring
 
 
+def dist_to_neighbors(city_index: int, genome: Genome, cities: list[City]) -> float:
+    if city_index == 0:
+        return distance(cities[genome[0]], cities[genome[1]]) * 2
+    if city_index == len(genome) - 1:
+        return distance(cities[genome[-2]], cities[genome[-1]]) * 2
+    
+    return (
+        distance(cities[genome[city_index - 1]], cities[genome[city_index]]) + 
+        distance(cities[genome[city_index]], cities[genome[city_index + 1]])
+    )
+
+
+def recombination_crossover_domain_knowledge(parent_1: Genome, parent_2: Genome, cities: list[City]) -> Genome:
+    crossover = randint(0, len(parent_1) - 1)
+    offspring = parent_1[:crossover] + parent_2[crossover:]
+
+    num_cities = len(parent_1) // 2
+    city_count = [0] * num_cities
+    for city in offspring:
+        city_count[city] += 1
+
+    # remove double cities with smallest distance to neighbors
+    extra_cities = [c for c in range(num_cities) if city_count[c] > 2]
+    indices_to_remove = set()
+    for extra_city in extra_cities:
+        best = (-1, 0)
+        second_best = (-1, 0)
+        for i, city in enumerate(offspring):
+            if city != extra_city:
+                continue
+            dist = dist_to_neighbors(i, offspring, cities)
+            if dist > best[1]:
+                indices_to_remove.add(second_best[0])
+                second_best = best
+                best = (i, dist)
+            elif dist > second_best[1]:
+                indices_to_remove.add(second_best[0])
+                second_best = (i, dist)
+            else:
+                indices_to_remove.add(i)
+    
+    offspring = [c for i, c in enumerate(offspring) if i not in indices_to_remove]
+
+    # add missing cities in places where they have the largest distance to their neighbors
+    missing_cities = [c for c in range(num_cities) if city_count[c] < 2]
+    missing_cities += [c for c in range(num_cities) if city_count[c] == 0]
+    for missing_city in missing_cities:
+        best = (0, dist_to_neighbors(0, [missing_city, offspring[0]], cities))
+        for i in range(1, len(offspring)):
+            dist = dist_to_neighbors(1, [offspring[i-1], missing_city, offspring[i]], cities)
+            if dist > best[1]:
+                best = (i, dist)
+        dist = dist_to_neighbors(1, [offspring[-1], missing_city], cities)
+        if dist > best[1]:
+            best = (len(offspring), dist)
+        offspring.insert(best[0], missing_city)
+
+    return offspring
+
+
 def swap(list: list, i: int, j: int):
     temp = list[i]
     list[i] = list[j]
@@ -95,25 +155,26 @@ def swap(list: list, i: int, j: int):
 
 
 def mutate(genome: Genome):
-    num_swaps = randint(1, 10)
+    num_swaps = randint(0, 3)
     for _ in range(num_swaps):
         i, j = sample(range(len(genome)), 2)
         swap(genome, i, j)
 
 
-def make_child(parents: list[Genome]) -> Genome:
+def make_child(parents: list[Genome], cities: list[City]) -> Genome:
     parent_1, parent_2 = sample(parents, 2)
-    child = recombination_simple_crossover(parent_1, parent_2)
+    # child = recombination_simple_crossover(parent_1, parent_2)
+    child = recombination_crossover_domain_knowledge(parent_1, parent_2, cities)
     mutate(child)
     return child
 
 
-def offspring(parents: list[Genome], lmbda: int) -> list[Genome]:
-    return [make_child(parents) for _ in range(lmbda)]
+def offspring(parents: list[Genome], lmbda: int, cities: list[City]) -> list[Genome]:
+    return [make_child(parents, cities) for _ in range(lmbda)]
 
 
-def ea_step(population: list[Genome], fitness_func: Callable[[Genome], float], mu: int) -> list[Genome]:
-    population = population[:mu] + offspring(population[:mu], len(population) - mu)
+def ea_step(population: list[Genome], fitness_func: Callable[[Genome], float], mu: int, cities: list[City]) -> list[Genome]:
+    population = population[:mu] + offspring(population[:mu], len(population) - mu, cities)
     population.sort(key=fitness_func, reverse=True)
     return population
 
@@ -181,7 +242,7 @@ def main():
     try:
         i = 1
         while True:
-            population = ea_step(population, fitness_func, mu)
+            population = ea_step(population, fitness_func, mu, cities)
             print_performance(population, fitness_func, i)
             i += 1
     except KeyboardInterrupt:
